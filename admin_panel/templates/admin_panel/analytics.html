@@ -1,0 +1,41 @@
+{% extends 'admin_panel/base.html' %}
+{% block title %}Analytics{% endblock %}
+{% block content %}
+<div class="admin-page-header"><h1 class="admin-page-title">Analytics</h1></div>
+<div class="chart-wrap">
+  <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:16px;margin-bottom:16px;">Monthly Revenue (12 Months)</div>
+  <div class="chart-bars" id="monthlyChart">
+    {% for d in monthly_data %}
+    <div class="chart-bar-col">
+      <div class="chart-bar-v" style="font-size:9px;">₹{{ d.revenue|floatformat:0 }}</div>
+      <div class="chart-bar" data-val="{{ d.revenue }}" style="height:4px;"></div>
+      <div class="chart-bar-l">{{ d.month }}</div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% if cat_sales %}
+<div class="admin-card">
+  <div class="admin-card-header"><span class="admin-card-title">Sales by Category</span></div>
+  <table class="data-table">
+    <thead><tr><th>Category</th><th>Revenue</th></tr></thead>
+    <tbody>
+      {% for c in cat_sales %}
+      <tr><td>{{ c.variant__product__category__name|default:"Uncategorized" }}</td><td>₹{{ c.total|floatformat:0 }}</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endif %}
+{% endblock %}
+{% block extra_js %}
+<script>
+const bars = document.querySelectorAll('#monthlyChart .chart-bar');
+const vals = Array.from(bars).map(b => parseFloat(b.dataset.val) || 0);
+const maxV = Math.max(...vals, 1);
+bars.forEach(bar => {
+  const h = Math.max((parseFloat(bar.dataset.val) / maxV) * 140, 4);
+  setTimeout(() => { bar.style.height = h + 'px'; }, 200);
+});
+</script>
+{% endblock %}

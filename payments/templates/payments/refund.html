@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% block title %}Request Refund — QuickMart{% endblock %}
+{% block content %}
+<div style="max-width:500px;margin:48px auto;padding:0 20px;">
+  <h1 style="font-size:24px;font-weight:700;margin-bottom:24px;">💰 Request Refund</h1>
+  <div class="account-content">
+    <p style="color:var(--mid);margin-bottom:20px;">Order <strong>#{{ order.order_number }}</strong> · ₹{{ order.total_amount }}</p>
+    <form method="POST">{% csrf_token %}
+      <div class="form-group">
+        <label class="form-label">Reason for refund</label>
+        <select name="reason" class="form-input">
+          <option>Item not delivered</option><option>Wrong item delivered</option>
+          <option>Damaged product</option><option>Quality not as expected</option><option>Other</option>
+        </select>
+      </div>
+      <button type="submit" class="form-btn">Submit Refund Request</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% block title %}My Orders — QuickMart{% endblock %}
+{% block content %}
+<div class="orders-wrap">
+  <h1 class="page-title">My Orders</h1>
+  <div class="filter-bar" style="margin-bottom:24px;display:flex;gap:8px;flex-wrap:wrap;">
+    <a href="{% url 'orders:list' %}" class="filter-chip {% if not status_filter %}active{% endif %}">All Orders</a>
+    <a href="?status=delivered" class="filter-chip {% if status_filter == 'delivered' %}active{% endif %}">✅ Delivered</a>
+    <a href="?status=out_for_delivery" class="filter-chip {% if status_filter == 'out_for_delivery' %}active{% endif %}">🛵 On the Way</a>
+    <a href="?status=confirmed" class="filter-chip {% if status_filter == 'confirmed' %}active{% endif %}">🔄 Processing</a>
+    <a href="?status=cancelled" class="filter-chip {% if status_filter == 'cancelled' %}active{% endif %}">❌ Cancelled</a>
+  </div>
+  {% for order in orders %}
+  <div class="order-card">
+    <div class="order-header">
+      <div>
+        <div class="order-number">#{{ order.order_number }}</div>
+        <div class="order-date">{{ order.placed_at|date:"M d, Y · h:i A" }}</div>
+      </div>
+      <span class="status-badge status-{{ order.status }}">{{ order.get_status_display }}</span>
+    </div>
+    <div class="order-items-preview">
+      {% for item in order.items.all|slice:":4" %}
+      <div class="order-item-chip">
+        {% if item.product_image %}<img src="{{ item.product_image }}" class="oi-img" alt="">{% endif %}
+        {{ item.product_name|truncatechars:20 }} ×{{ item.quantity }}
+      </div>
+      {% endfor %}
+    </div>
+    {% if order.status == 'out_for_delivery' %}
+    <div style="background:var(--green-light);border-radius:8px;padding:8px 12px;font-size:13px;color:var(--green);font-weight:500;margin-bottom:12px;">
+      ⚡ Arriving in ~10 minutes
+    </div>
+    {% endif %}
+    <div class="order-footer">
+      <div>
+        <div class="order-total">₹{{ order.total_amount }}</div>
+        <div style="font-size:12px;color:var(--mid);">{{ order.get_payment_method_display }} · {{ order.items.count }} items</div>
+      </div>
+      <div class="order-actions">
+        {% if order.status in 'out_for_delivery,dispatched' %}
+        <a href="{% url 'orders:track' order.id %}" class="btn-sm btn-track">📍 Track</a>
+        {% endif %}
+        <a href="{% url 'orders:detail' order.id %}" class="btn-sm btn-view-sm">View Details</a>
+        <a href="{% url 'orders:reorder' order.id %}" class="btn-sm btn-reorder">🔄 Reorder</a>
+        {% if order.status in 'pending,confirmed' %}
+        <a href="{% url 'orders:cancel' order.id %}" class="btn-sm btn-cancel">Cancel</a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  {% empty %}
+  <div style="text-align:center;padding:80px 20px;">
+    <div style="font-size:80px;margin-bottom:20px;">📦</div>
+    <h2 style="font-size:24px;font-weight:700;margin-bottom:10px;">No orders yet</h2>
+    <p style="color:var(--mid);margin-bottom:24px;">Start shopping to see your orders here</p>
+    <a href="{% url 'store:home' %}" class="btn-primary">Start Shopping</a>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}

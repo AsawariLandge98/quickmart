@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block title %}Search: {{ q }} — QuickMart{% endblock %}
+{% block content %}
+<div class="search-wrap">
+  <div class="search-header">
+    <h1 style="font-size:24px;font-weight:700;">Search Results</h1>
+    <div class="search-query">{% if q %}Showing results for "<strong>{{ q }}</strong>" — {{ results|length }} products found{% endif %}</div>
+  </div>
+  {% if results %}
+  <div class="products-grid">
+    {% for product in results %}{% include 'store/product_card.html' %}{% endfor %}
+  </div>
+  {% else %}
+  <div class="no-results">
+    <div class="no-results-icon">🔍</div>
+    <h2 style="font-size:22px;margin-bottom:8px;">No results for "{{ q }}"</h2>
+    <p style="color:var(--mid);margin-bottom:24px;">Try different keywords or browse our categories</p>
+    <a href="{% url 'store:product_list' %}" class="btn-primary">Browse All Products</a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,32 @@
+{% extends 'admin_panel/base.html' %}
+{% block title %}Orders{% endblock %}
+{% block content %}
+<div class="admin-page-header">
+  <h1 class="admin-page-title">Orders ({{ orders|length }})</h1>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;">
+    <a href="{% url 'admin_panel:orders' %}" class="filter-chip {% if not status_filter %}active{% endif %}">All</a>
+    {% for sc, sn in status_choices %}<a href="?status={{ sc }}" class="filter-chip {% if status_filter == sc %}active{% endif %}">{{ sn }}</a>{% endfor %}
+  </div>
+</div>
+<div class="admin-card">
+  <table class="data-table">
+    <thead><tr><th>Order</th><th>Customer</th><th>Items</th><th>Amount</th><th>Payment</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead>
+    <tbody>
+      {% for order in orders %}
+      <tr>
+        <td><a href="{% url 'admin_panel:order_detail' order.id %}" style="color:var(--brand);font-weight:600;">#{{ order.order_number }}</a></td>
+        <td>{{ order.user.full_name|truncatechars:18 }}<br><span style="font-size:11px;color:var(--mid);">{{ order.user.email|truncatechars:20 }}</span></td>
+        <td>{{ order.items.count }} items</td>
+        <td>₹{{ order.total_amount }}</td>
+        <td>{{ order.get_payment_method_display }}</td>
+        <td><span class="status-badge status-{{ order.status }}">{{ order.get_status_display }}</span></td>
+        <td style="font-size:12px;">{{ order.placed_at|date:"M d, Y" }}<br>{{ order.placed_at|date:"h:i A" }}</td>
+        <td><a href="{% url 'admin_panel:order_detail' order.id %}" class="action-btn btn-view-sm">Manage</a></td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="8" style="text-align:center;padding:40px;color:var(--mid);">No orders found</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

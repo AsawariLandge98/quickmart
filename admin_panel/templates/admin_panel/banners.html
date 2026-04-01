@@ -1,0 +1,38 @@
+{% extends 'admin_panel/base.html' %}
+{% block title %}Banners{% endblock %}
+{% block content %}
+<div class="admin-page-header"><h1 class="admin-page-title">Banners</h1></div>
+<div style="display:grid;grid-template-columns:1fr 1.5fr;gap:20px;">
+  <div class="form-section">
+    <div class="form-section-title">Add Banner</div>
+    <form method="POST">{% csrf_token %}
+      <div class="form-group"><label class="form-label">Title</label><input type="text" name="title" class="form-input" required></div>
+      <div class="form-group"><label class="form-label">Subtitle</label><input type="text" name="subtitle" class="form-input"></div>
+      <div class="form-group"><label class="form-label">Emoji</label><input type="text" name="emoji" class="form-input" placeholder="🛒" maxlength="5"></div>
+      <div class="form-group"><label class="form-label">Link URL</label><input type="text" name="link_url" class="form-input" placeholder="/products/"></div>
+      <div class="form-group"><label class="form-label">Button Text</label><input type="text" name="button_text" class="form-input" value="Shop Now"></div>
+      <div class="form-group"><label class="form-label">Background CSS</label><input type="text" name="bg_color" class="form-input" value="linear-gradient(135deg,#1a1a2e,#16213e)"></div>
+      <button type="submit" class="btn-primary">Add Banner</button>
+    </form>
+  </div>
+  <div class="admin-card">
+    <div class="admin-card-header"><span class="admin-card-title">Banners ({{ banners|length }})</span></div>
+    <table class="data-table">
+      <thead><tr><th>Banner</th><th>Status</th></tr></thead>
+      <tbody>
+        {% for b in banners %}
+        <tr>
+          <td>
+            <div style="font-weight:500;">{{ b.emoji }} {{ b.title }}</div>
+            <div style="font-size:12px;color:var(--mid);">{{ b.subtitle }}</div>
+          </td>
+          <td><span class="{% if b.is_active %}badge-active{% else %}badge-inactive{% endif %}">{% if b.is_active %}Active{% else %}Inactive{% endif %}</span></td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="2" style="text-align:center;color:var(--mid);padding:20px;">No banners yet</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

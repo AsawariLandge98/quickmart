@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% block title %}Payment Failed — QuickMart{% endblock %}
+{% block content %}
+<div class="success-wrap">
+  <span class="success-icon">❌</span>
+  <h1 class="success-title">Payment Failed</h1>
+  <p class="success-sub">Something went wrong. Your payment could not be processed. No amount has been deducted.</p>
+  <a href="{% url 'cart:detail' %}" class="btn-primary">Try Again</a>
+</div>
+{% endblock %}

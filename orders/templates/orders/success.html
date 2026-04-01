@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block title %}Order Placed! — QuickMart{% endblock %}
+{% block content %}
+<div class="success-wrap">
+  <span class="success-icon">🎉</span>
+  <h1 class="success-title">Order Placed!</h1>
+  <p class="success-sub">Your order has been confirmed. Our delivery partner will reach you in <strong>~10 minutes</strong>. You earned <strong>{{ order.coins_earned }} QuickCoins</strong>!</p>
+  <div class="order-id-box">Order ID: <strong>#{{ order.order_number }}</strong></div>
+  <div style="display:flex;flex-direction:column;gap:12px;max-width:320px;margin:0 auto;">
+    <a href="{% url 'orders:track' order.id %}" class="btn-primary">📍 Track Order Live</a>
+    <a href="{% url 'orders:detail' order.id %}" class="btn-outline" style="color:var(--dark);border:1.5px solid var(--border);padding:12px;border-radius:10px;text-align:center;">View Order Details</a>
+    <a href="{% url 'store:home' %}" style="color:var(--mid);text-align:center;font-size:14px;padding:8px;">Continue Shopping →</a>
+  </div>
+</div>
+{% endblock %}

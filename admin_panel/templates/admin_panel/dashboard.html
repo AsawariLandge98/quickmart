@@ -1,0 +1,134 @@
+{% extends 'admin_panel/base.html' %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<div class="admin-page-header">
+  <h1 class="admin-page-title">Dashboard</h1>
+  <div style="display:flex;gap:10px;">
+    <a href="{% url 'admin_panel:products' %}" class="btn-primary" style="font-size:13px;padding:8px 16px;">+ Add Product</a>
+  </div>
+</div>
+
+<!-- Stats -->
+<div class="stats-grid">
+  <div class="stat-card">
+    <div class="stat-icon" style="background:#e8f4fd;">💰</div>
+    <div class="stat-val">₹{{ today_revenue|floatformat:0 }}</div>
+    <div class="stat-label">Today's Revenue</div>
+    <div class="stat-change stat-up">↑ Orders: {{ today_count }}</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon" style="background:var(--brand-light);">📦</div>
+    <div class="stat-val">{{ active_orders }}</div>
+    <div class="stat-label">Active Orders</div>
+    <div class="stat-change stat-up">↑ Month: ₹{{ month_revenue|floatformat:0 }}</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon" style="background:var(--green-light);">👥</div>
+    <div class="stat-val">{{ total_users }}</div>
+    <div class="stat-label">Total Users</div>
+    <div class="stat-change stat-up">+{{ new_users_today }} today</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon" style="background:var(--yellow-light);">📦</div>
+    <div class="stat-val">{{ total_products }}</div>
+    <div class="stat-label">Products</div>
+    <div class="stat-change stat-up">Active catalog</div>
+  </div>
+</div>
+
+<!-- Revenue Chart -->
+<div class="chart-wrap">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+    <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:16px;">Revenue (Last 7 Days)</div>
+  </div>
+  {% if weekly_data %}
+  <div class="chart-bars">
+    {% with max_rev=weekly_data.0.revenue %}
+    {% for day in weekly_data %}
+    <div class="chart-bar-col">
+      <div class="chart-bar-v">₹{{ day.revenue|floatformat:0 }}</div>
+      <div class="chart-bar" data-height="{% if day.revenue > 0 %}{{ day.revenue|floatformat:0 }}{% else %}4{% endif %}" style="height:{% widthratio day.revenue 1 1 %}px;" title="₹{{ day.revenue }} · {{ day.orders }} orders"></div>
+      <div class="chart-bar-l">{{ day.date }}</div>
+    </div>
+    {% endfor %}
+    {% endwith %}
+  </div>
+  {% else %}
+  <div style="height:160px;display:flex;align-items:center;justify-content:center;color:var(--mid);">No data yet — place some orders!</div>
+  {% endif %}
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+  <!-- Recent Orders -->
+  <div class="admin-card">
+    <div class="admin-card-header">
+      <span class="admin-card-title">Recent Orders</span>
+      <a href="{% url 'admin_panel:orders' %}" style="font-size:13px;color:var(--brand);">View All →</a>
+    </div>
+    <table class="data-table">
+      <thead><tr><th>Order</th><th>Customer</th><th>Amount</th><th>Status</th></tr></thead>
+      <tbody>
+        {% for order in recent_orders %}
+        <tr>
+          <td><a href="{% url 'admin_panel:order_detail' order.id %}" style="color:var(--brand);font-weight:500;">#{{ order.order_number }}</a></td>
+          <td>{{ order.user.full_name|truncatechars:20 }}</td>
+          <td>₹{{ order.total_amount }}</td>
+          <td><span class="status-badge status-{{ order.status }}">{{ order.get_status_display }}</span></td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="4" style="text-align:center;color:var(--mid);">No orders yet</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Top Products + Low Stock -->
+  <div>
+    <div class="admin-card" style="margin-bottom:20px;">
+      <div class="admin-card-header"><span class="admin-card-title">Top Products</span></div>
+      <table class="data-table">
+        <thead><tr><th>Product</th><th>Qty Sold</th><th>Revenue</th></tr></thead>
+        <tbody>
+          {% for p in top_products %}
+          <tr>
+            <td>{{ p.product_name|truncatechars:25 }}</td>
+            <td>{{ p.total_qty }}</td>
+            <td>₹{{ p.total_rev|floatformat:0 }}</td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="3" style="text-align:center;color:var(--mid);">No sales data</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% if low_stock %}
+    <div class="admin-card">
+      <div class="admin-card-header"><span class="admin-card-title" style="color:var(--red);">⚠️ Low Stock Alert</span></div>
+      <table class="data-table">
+        <thead><tr><th>Product</th><th>Stock</th></tr></thead>
+        <tbody>
+          {% for v in low_stock %}
+          <tr>
+            <td>{{ v.product.name|truncatechars:28 }} ({{ v.name }})</td>
+            <td class="stock-low">{{ v.stock }} left</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+// Animate chart bars
+const maxVal = Math.max({% for d in weekly_data %}{{ d.revenue|default:1 }}{% if not forloop.last %},{% endif %}{% endfor %}, 1);
+document.querySelectorAll('.chart-bar').forEach(bar => {
+  const v = parseFloat(bar.dataset.height) || 0;
+  const h = Math.max((v / maxVal) * 140, 4);
+  bar.style.height = '0px';
+  setTimeout(() => { bar.style.height = h + 'px'; }, 200);
+});
+</script>
+{% endblock %}

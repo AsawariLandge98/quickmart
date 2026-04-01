@@ -1,0 +1,62 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}Admin{% endblock %} — QuickMart</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'css/main.css' %}">
+</head>
+<body>
+<div class="admin-layout">
+  <aside class="admin-sidebar">
+    <div class="admin-brand">
+      <div class="admin-brand-name">⚡ QuickMart</div>
+      <div class="admin-brand-sub">Admin Dashboard</div>
+    </div>
+    <nav class="admin-nav-section">
+      <div class="admin-nav-label">Main</div>
+      <a href="{% url 'admin_panel:dashboard' %}" class="admin-nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}"><span>📊</span> Dashboard</a>
+      <a href="{% url 'admin_panel:analytics' %}" class="admin-nav-link {% if request.resolver_match.url_name == 'analytics' %}active{% endif %}"><span>📈</span> Analytics</a>
+    </nav>
+    <nav class="admin-nav-section">
+      <div class="admin-nav-label">Catalog</div>
+      <a href="{% url 'admin_panel:products' %}" class="admin-nav-link {% if 'product' in request.resolver_match.url_name %}active{% endif %}"><span>📦</span> Products</a>
+      <a href="{% url 'admin_panel:categories' %}" class="admin-nav-link {% if request.resolver_match.url_name == 'categories' %}active{% endif %}"><span>📂</span> Categories</a>
+      <a href="{% url 'admin_panel:inventory' %}" class="admin-nav-link {% if request.resolver_match.url_name == 'inventory' %}active{% endif %}"><span>🏭</span> Inventory</a>
+      <a href="{% url 'admin_panel:banners' %}" class="admin-nav-link {% if request.resolver_match.url_name == 'banners' %}active{% endif %}"><span>🖼️</span> Banners</a>
+    </nav>
+    <nav class="admin-nav-section">
+      <div class="admin-nav-label">Commerce</div>
+      <a href="{% url 'admin_panel:orders' %}" class="admin-nav-link {% if 'order' in request.resolver_match.url_name %}active{% endif %}"><span>🛒</span> Orders</a>
+      <a href="{% url 'admin_panel:coupons' %}" class="admin-nav-link {% if 'coupon' in request.resolver_match.url_name %}active{% endif %}"><span>🎟️</span> Coupons</a>
+    </nav>
+    <nav class="admin-nav-section">
+      <div class="admin-nav-label">People</div>
+      <a href="{% url 'admin_panel:users' %}" class="admin-nav-link {% if 'user' in request.resolver_match.url_name %}active{% endif %}"><span>👥</span> Users</a>
+      <a href="{% url 'admin_panel:reviews' %}" class="admin-nav-link {% if 'review' in request.resolver_match.url_name %}active{% endif %}"><span>⭐</span> Reviews</a>
+    </nav>
+    <nav class="admin-nav-section">
+      <div class="admin-nav-label">System</div>
+      <a href="{% url 'store:home' %}" class="admin-nav-link"><span>🌐</span> View Site</a>
+      <a href="{% url 'django-admin:index' %}" class="admin-nav-link"><span>⚙️</span> Django Admin</a>
+      <a href="{% url 'users:logout' %}" class="admin-nav-link"><span>🚪</span> Logout</a>
+    </nav>
+  </aside>
+  <main class="admin-main">
+    {% if messages %}
+    <div style="margin-bottom:16px;">
+      {% for msg in messages %}
+      <div class="alert alert-{{ msg.tags }}" onclick="this.remove()">{{ msg }} <span class="alert-close">✕</span></div>
+      {% endfor %}
+    </div>
+    {% endif %}
+    {% block content %}{% endblock %}
+  </main>
+</div>
+<script src="{% static 'js/main.js' %}"></script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block title %}Cancel Order — QuickMart{% endblock %}
+{% block content %}
+<div style="max-width:500px;margin:48px auto;padding:0 20px;text-align:center;">
+  <div style="font-size:64px;margin-bottom:16px;">⚠️</div>
+  <h1 style="font-size:24px;font-weight:700;margin-bottom:8px;">Cancel Order?</h1>
+  <p style="color:var(--mid);margin-bottom:24px;">Are you sure you want to cancel order <strong>#{{ order.order_number }}</strong>? This action cannot be undone.</p>
+  <div class="account-content">
+    <form method="POST">
+      {% csrf_token %}
+      <div class="form-group">
+        <label class="form-label">Reason for cancellation</label>
+        <select name="reason" class="form-input">
+          <option>Changed my mind</option>
+          <option>Found better price elsewhere</option>
+          <option>Ordered by mistake</option>
+          <option>Delivery time too long</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div style="display:flex;gap:12px;margin-top:8px;">
+        <button type="submit" class="btn-primary" style="flex:1;background:var(--red);">Yes, Cancel</button>
+        <a href="{% url 'orders:detail' order.id %}" class="btn-outline" style="flex:1;color:var(--dark);border:1.5px solid var(--border);padding:12px;border-radius:10px;text-align:center;">Go Back</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

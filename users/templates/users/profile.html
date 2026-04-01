@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+{% block title %}My Account — QuickMart{% endblock %}
+{% block content %}
+<div class="account-wrap">
+  <div class="account-grid">
+    <div class="account-sidebar">
+      <div class="user-card">
+        <div class="user-avatar">
+          {% if user.profile_image %}<img src="{{ user.profile_image.url }}" alt="">
+          {% else %}{{ user.first_name|first|upper }}{% endif %}
+        </div>
+        <div class="user-name">{{ user.full_name }}</div>
+        <div class="user-email">{{ user.email }}</div>
+        {% if user.phone %}<div style="font-size:13px;color:rgba(255,255,255,.5);margin-top:4px;">{{ user.phone }}</div>{% endif %}
+        <div class="coins-strip">
+          <span style="font-size:20px;">🪙</span>
+          <span class="coins-val">{{ user.reward_coins }}</span>
+          <span class="coins-lbl">QuickCoins</span>
+        </div>
+      </div>
+      <nav class="account-nav">
+        <a href="{% url 'users:profile' %}" class="account-nav-item active"><span>👤</span> My Profile</a>
+        <a href="{% url 'orders:list' %}" class="account-nav-item"><span>📦</span> My Orders</a>
+        <a href="{% url 'users:wishlist' %}" class="account-nav-item"><span>❤️</span> Wishlist</a>
+        <a href="{% url 'users:spin' %}" class="account-nav-item"><span>🎡</span> Spin & Win</a>
+        {% if user.is_staff %}<a href="{% url 'admin_panel:dashboard' %}" class="account-nav-item" style="color:var(--brand);"><span>⚡</span> Admin Panel</a>{% endif %}
+        <a href="{% url 'users:logout' %}" class="account-nav-item"><span>🚪</span> Sign Out</a>
+      </nav>
+    </div>
+    <div>
+      <!-- Profile Form -->
+      <div class="account-content" style="margin-bottom:20px;">
+        <div class="section-label">Edit Profile</div>
+        <form method="POST" enctype="multipart/form-data">
+          {% csrf_token %}
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+            <div class="form-group">
+              <label class="form-label">Full Name</label>
+              <input type="text" name="full_name" class="form-input" value="{{ user.full_name }}">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Phone</label>
+              <input type="tel" name="phone" class="form-input" value="{{ user.phone }}">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Profile Photo</label>
+            <input type="file" name="profile_image" class="form-input" accept="image/*">
+          </div>
+          <button type="submit" class="btn-primary" style="margin-top:8px;">Save Changes</button>
+        </form>
+      </div>
+
+      <!-- Addresses -->
+      <div class="account-content">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+          <div class="section-label" style="margin-bottom:0;border:none;">Saved Addresses</div>
+          <a href="{% url 'users:add_address' %}" class="btn-primary" style="font-size:13px;padding:8px 14px;">+ Add Address</a>
+        </div>
+        {% for addr in addresses %}
+        <div class="address-card">
+          <div>
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+              <span style="font-size:13px;font-weight:600;color:var(--brand);text-transform:uppercase;">{{ addr.get_label_display }}</span>
+              {% if addr.is_default %}<span style="font-size:11px;background:var(--green-light);color:var(--green);padding:2px 8px;border-radius:4px;">Default</span>{% endif %}
+            </div>
+            <div style="font-weight:500;font-size:14px;">{{ addr.full_name }}</div>
+            <div style="font-size:13px;color:var(--mid);">{{ addr.address_line1 }}, {{ addr.city }}, {{ addr.state }} — {{ addr.pincode }}</div>
+            <div style="font-size:13px;color:var(--mid);">📞 {{ addr.phone }}</div>
+          </div>
+          <div class="address-card-actions">
+            <a href="{% url 'users:edit_address' addr.id %}" class="action-btn btn-edit-sm">Edit</a>
+            <a href="{% url 'users:delete_address' addr.id %}" class="action-btn btn-del-sm" data-confirm="Delete this address?">Delete</a>
+          </div>
+        </div>
+        {% empty %}
+        <p style="color:var(--mid);text-align:center;padding:24px;">No addresses saved. <a href="{% url 'users:add_address' %}" style="color:var(--brand);">Add one now</a></p>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

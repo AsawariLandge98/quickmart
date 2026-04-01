@@ -1,0 +1,248 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}QuickMart — Groceries in 10 Minutes{% endblock %}
+
+{% block content %}
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-inner">
+    <div class="hero-left">
+      <div class="hero-tag">&#9889; Delivery in 10 minutes</div>
+      <h1>Groceries,<br>Delivered <span>Instantly</span></h1>
+      <p>Fresh produce, dairy, snacks and more — from your nearest dark store to your door in record time.</p>
+      <div class="hero-cta">
+        <a href="{% url 'store:product_list' %}" class="btn-primary">&#128717; Shop Now</a>
+        <a href="{% url 'store:categories' %}" class="btn-outline">Browse Categories</a>
+      </div>
+      <div class="hero-stats">
+        <div class="hero-stat-item">
+          <div class="hero-stat-v">10 min</div>
+          <div class="hero-stat-l">Avg delivery</div>
+        </div>
+        <div class="hero-stat-item">
+          <div class="hero-stat-v">5000+</div>
+          <div class="hero-stat-l">Products</div>
+        </div>
+        <div class="hero-stat-item">
+          <div class="hero-stat-v">4.8&#9733;</div>
+          <div class="hero-stat-l">App rating</div>
+        </div>
+        <div class="hero-stat-item">
+          <div class="hero-stat-v">2M+</div>
+          <div class="hero-stat-l">Happy users</div>
+        </div>
+      </div>
+    </div>
+    <div class="hero-right">
+      <div class="hero-card">
+        <div class="hero-card-badge">&#128293; Trending Now</div>
+        <div class="hero-products-grid">
+          {% for product in trending|slice:":4" %}
+          <a href="{% url 'store:product_detail' product.slug %}" class="hero-mini-card">
+            {% if product.display_image %}
+            <img src="{{ product.display_image }}" alt="{{ product.name }}" class="hero-mini-img">
+            {% else %}
+            <div class="hero-mini-img hero-mini-emoji">{{ product.category.icon }}</div>
+            {% endif %}
+            <div class="hero-mini-name">{{ product.name|truncatechars:20 }}</div>
+            <div class="hero-mini-price">&#8377;{{ product.min_price }}</div>
+          </a>
+          {% endfor %}
+        </div>
+        <div class="eta-strip">
+          <div class="eta-icon-box">&#128757;</div>
+          <div>
+            <div class="eta-label">Your estimated delivery</div>
+            <div class="eta-val">&#9889; 8–10 minutes away</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- BANNERS -->
+{% if banners %}
+<div class="banners-wrap" style="margin-top:32px;">
+  <div class="banner-grid">
+    {% for banner in banners %}
+    <a href="{{ banner.link_url|default:'#' }}" class="banner-card" style="background:{{ banner.bg_color }}">
+      {% if banner.image %}
+      <img src="{{ banner.image.url }}" alt="{{ banner.title }}" class="banner-img">
+      {% endif %}
+      <div class="banner-overlay"></div>
+      {% if banner.emoji %}<div class="banner-emoji">{{ banner.emoji }}</div>{% endif %}
+      <div class="banner-content">
+        <div class="banner-tag">{{ banner.subtitle }}</div>
+        <div class="banner-title">{{ banner.title }}</div>
+        <div class="banner-btn">{{ banner.button_text }} &rarr;</div>
+      </div>
+    </a>
+    {% empty %}
+    <a href="{% url 'store:product_list' %}" class="banner-card" style="background:linear-gradient(135deg,#1a1a2e,#16213e)">
+      <div class="banner-overlay"></div>
+      <div class="banner-emoji">&#128717;</div>
+      <div class="banner-content">
+        <div class="banner-tag">Limited Time</div>
+        <div class="banner-title">Flat 40% OFF</div>
+        <div class="banner-sub">On your first order</div>
+        <div class="banner-btn">Shop Now &rarr;</div>
+      </div>
+    </a>
+    <a href="{% url 'store:category' 'fruits-vegetables' %}" class="banner-card" style="background:linear-gradient(135deg,#2d6a4f,#1b4332)">
+      <div class="banner-overlay"></div>
+      <div class="banner-emoji">&#129382;</div>
+      <div class="banner-content">
+        <div class="banner-tag">Daily Fresh</div>
+        <div class="banner-title">Farm Fresh</div>
+        <div class="banner-btn">Explore &rarr;</div>
+      </div>
+    </a>
+    <a href="{% url 'store:category' 'dairy-eggs' %}" class="banner-card" style="background:linear-gradient(135deg,#7b2d8b,#4a1942)">
+      <div class="banner-overlay"></div>
+      <div class="banner-emoji">&#129371;</div>
+      <div class="banner-content">
+        <div class="banner-tag">Daily Essentials</div>
+        <div class="banner-title">Dairy &amp; More</div>
+        <div class="banner-btn">Subscribe &rarr;</div>
+      </div>
+    </a>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+<!-- CATEGORIES -->
+<div class="section">
+  <div class="section-header">
+    <div class="section-title">Shop by Category</div>
+    <a href="{% url 'store:categories' %}" class="section-link">All categories &rarr;</a>
+  </div>
+  <div class="cat-grid">
+    {% for cat in categories %}
+    <a href="{% url 'store:category' cat.slug %}" class="cat-card">
+      {% if cat.image %}
+      <img src="{{ cat.image.url }}" alt="{{ cat.name }}" class="cat-img">
+      {% else %}
+      <div class="cat-icon">{{ cat.icon }}</div>
+      {% endif %}
+      <div class="cat-name">{{ cat.name }}</div>
+    </a>
+    {% endfor %}
+  </div>
+</div>
+
+<!-- FLASH SALE -->
+{% if flash_sale %}
+<div style="padding:0 20px;max-width:1400px;margin:0 auto 8px;">
+  <div class="flash-bar" style="border-radius:var(--r-xl);">
+    <span style="font-size:24px;">&#9889;</span>
+    <span class="flash-title">Flash Sale</span>
+    <div style="flex:1"></div>
+    <span style="font-size:14px;color:rgba(255,255,255,.6);margin-right:8px;">Ends in</span>
+    <div class="countdown">
+      <div class="cd-block" id="cdH">02</div>
+      <span class="cd-sep">:</span>
+      <div class="cd-block" id="cdM">47</div>
+      <span class="cd-sep">:</span>
+      <div class="cd-block" id="cdS">13</div>
+    </div>
+  </div>
+</div>
+<div class="section" style="padding-top:20px;">
+  <div class="section-header">
+    <div class="section-title">&#9889; Flash Deals</div>
+    <a href="{% url 'store:product_list' %}?flash=1" class="section-link">See all &rarr;</a>
+  </div>
+  <div class="products-grid">
+    {% for product in flash_sale %}
+    {% include 'store/product_card.html' %}
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+<!-- FEATURED -->
+{% if featured %}
+<div class="section">
+  <div class="section-header">
+    <div class="section-title">&#128293; Best Sellers</div>
+    <a href="{% url 'store:product_list' %}" class="section-link">See all &rarr;</a>
+  </div>
+  <div class="products-grid">
+    {% for product in featured %}
+    {% include 'store/product_card.html' %}
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+<!-- GAMIFICATION STRIP -->
+<div class="spin-strip-wrap">
+  <div class="spin-strip">
+    <div class="spin-strip-icon">&#127920;</div>
+    <div class="spin-strip-text">
+      <div class="spin-strip-title">Spin &amp; Win Rewards!</div>
+      <div class="spin-strip-sub">Earn coins on every order. Spin the wheel to win discounts, free delivery &amp; cashback.</div>
+    </div>
+    <a href="{% url 'users:spin' %}" class="btn-primary" style="flex-shrink:0;">Spin Now &#127921;</a>
+  </div>
+</div>
+
+<!-- NEW ARRIVALS -->
+{% if new_arrivals %}
+<div class="section">
+  <div class="section-header">
+    <div class="section-title">&#10024; New Arrivals</div>
+    <a href="{% url 'store:product_list' %}" class="section-link">See all &rarr;</a>
+  </div>
+  <div class="products-grid">
+    {% for product in new_arrivals %}
+    {% include 'store/product_card.html' %}
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+<!-- WHY US -->
+<div class="why-us-section">
+  <div class="why-us-inner">
+    <div class="why-us-header">
+      <div class="why-us-title">Why <span>QuickMart</span>?</div>
+      <p class="why-us-sub">Everything you need, at the speed of life</p>
+    </div>
+    <div class="why-us-grid">
+      <div class="why-card">
+        <div class="why-icon-wrap" style="background:linear-gradient(135deg,#fff1ec,#ffe0d0);">
+          <span class="why-icon">&#9889;</span>
+        </div>
+        <div class="why-card-title">10-Minute Delivery</div>
+        <div class="why-card-desc">From dark store to your door in record time, every single time.</div>
+      </div>
+      <div class="why-card">
+        <div class="why-icon-wrap" style="background:linear-gradient(135deg,#e8f5e9,#c8e6c9);">
+          <span class="why-icon">&#127807;</span>
+        </div>
+        <div class="why-card-title">100% Fresh</div>
+        <div class="why-card-desc">Daily restocked from local farms. Freshness guaranteed on every order.</div>
+      </div>
+      <div class="why-card">
+        <div class="why-icon-wrap" style="background:linear-gradient(135deg,#fff8e1,#ffecb3);">
+          <span class="why-icon">&#128176;</span>
+        </div>
+        <div class="why-card-title">Best Prices</div>
+        <div class="why-card-desc">Price match guarantee always. You won't find it cheaper elsewhere.</div>
+      </div>
+      <div class="why-card">
+        <div class="why-icon-wrap" style="background:linear-gradient(135deg,#e3f2fd,#bbdefb);">
+          <span class="why-icon">&#128260;</span>
+        </div>
+        <div class="why-card-title">Easy Returns</div>
+        <div class="why-card-desc">Instant refund, no questions asked. Your satisfaction is our promise.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

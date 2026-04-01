@@ -1,0 +1,45 @@
+{% extends 'admin_panel/base.html' %}
+{% block title %}Users{% endblock %}
+{% block content %}
+<div class="admin-page-header">
+  <h1 class="admin-page-title">Users ({{ users|length }})</h1>
+  <form method="GET" style="display:flex;gap:8px;">
+    <input type="text" name="q" class="search-input" placeholder="Search by email or name..." value="{{ q }}">
+    <button type="submit" class="btn-primary" style="font-size:13px;padding:8px 14px;">Search</button>
+  </form>
+</div>
+<div class="admin-card">
+  <table class="data-table">
+    <thead><tr><th>User</th><th>Phone</th><th>Coins</th><th>Orders</th><th>Joined</th><th>Status</th><th>Actions</th></tr></thead>
+    <tbody>
+      {% for u in users %}
+      <tr>
+        <td>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div style="width:36px;height:36px;background:var(--brand-light);border-radius:50%;display:grid;place-items:center;font-weight:700;color:var(--brand);flex-shrink:0;">{{ u.first_name|first|upper }}</div>
+            <div>
+              <div style="font-weight:500;font-size:13px;">{{ u.full_name }}</div>
+              <div style="font-size:11px;color:var(--mid);">{{ u.email }}</div>
+            </div>
+          </div>
+        </td>
+        <td>{{ u.phone|default:"—" }}</td>
+        <td>🪙 {{ u.reward_coins }}</td>
+        <td>{{ u.orders.count }}</td>
+        <td style="font-size:12px;">{{ u.date_joined|date:"M d, Y" }}</td>
+        <td id="user-status-{{ u.id }}">
+          {% if u.is_active %}<span class="badge-active">Active</span>{% else %}<span class="badge-inactive">Inactive</span>{% endif %}
+          {% if u.is_staff %}<span style="font-size:11px;background:#f3e8ff;color:#7c3aed;padding:2px 6px;border-radius:4px;margin-left:4px;">Staff</span>{% endif %}
+        </td>
+        <td style="display:flex;gap:6px;">
+          <a href="{% url 'admin_panel:user_detail' u.id %}" class="action-btn btn-view-sm">View</a>
+          <button class="action-btn {% if u.is_active %}btn-del-sm{% else %}btn-view-sm{% endif %}" onclick="toggleUserActive('{{ u.id }}', this)">{% if u.is_active %}Disable{% else %}Enable{% endif %}</button>
+        </td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="7" style="text-align:center;padding:40px;color:var(--mid);">No users found</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% block title %}{{ action }} Address — QuickMart{% endblock %}
+{% block content %}
+<div style="max-width:600px;margin:40px auto;padding:0 20px;">
+  <h1 style="font-size:24px;font-weight:700;margin-bottom:24px;">{{ action }} Address</h1>
+  <div class="account-content">
+    <form method="POST">
+      {% csrf_token %}
+      <input type="hidden" name="next" value="{% url 'users:profile' %}">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+        <div class="form-group" style="grid-column:1/-1;">
+          <label class="form-label">Label</label>
+          {{ form.label }}
+        </div>
+        <div class="form-group"><label class="form-label">Full Name</label>{{ form.full_name }}</div>
+        <div class="form-group"><label class="form-label">Phone</label>{{ form.phone }}</div>
+        <div class="form-group" style="grid-column:1/-1;"><label class="form-label">Address Line 1</label>{{ form.address_line1 }}</div>
+        <div class="form-group" style="grid-column:1/-1;"><label class="form-label">Address Line 2</label>{{ form.address_line2 }}</div>
+        <div class="form-group"><label class="form-label">City</label>{{ form.city }}</div>
+        <div class="form-group"><label class="form-label">State</label>{{ form.state }}</div>
+        <div class="form-group"><label class="form-label">Pincode</label>{{ form.pincode }}</div>
+        <div class="form-group"><label class="form-label">Landmark</label>{{ form.landmark }}</div>
+        <div class="form-group" style="display:flex;align-items:center;gap:8px;grid-column:1/-1;">
+          {{ form.is_default }} <label>Set as default address</label>
+        </div>
+      </div>
+      <div style="display:flex;gap:12px;margin-top:16px;">
+        <button type="submit" class="btn-primary">Save Address</button>
+        <a href="{% url 'users:profile' %}" class="btn-outline" style="color:var(--dark);border-color:var(--border);">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

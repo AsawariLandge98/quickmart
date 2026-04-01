@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% block title %}Track Order — QuickMart{% endblock %}
+{% block content %}
+<div class="tracking-wrap">
+  <a href="{% url 'orders:list' %}" style="display:flex;align-items:center;gap:6px;font-size:14px;color:var(--mid);margin-bottom:20px;">← Back to Orders</a>
+  <div class="tracking-header">
+    <div class="tracking-order-num">Order #{{ order.order_number }}</div>
+    <div class="tracking-status">{% if order.status == 'out_for_delivery' %}🛵 Out for Delivery{% elif order.status == 'delivered' %}✅ Delivered{% elif order.status == 'confirmed' %}✅ Confirmed{% else %}🔄 {{ order.get_status_display }}{% endif %}</div>
+    <div class="tracking-eta">⏱ {% if order.status == 'out_for_delivery' %}Arriving in approximately <strong>~8 minutes</strong>{% elif order.status == 'delivered' %}Delivered at {{ order.delivered_at|date:"h:i A" }}{% else %}Estimated: {{ order.estimated_delivery|date:"h:i A" }}{% endif %}</div>
+  </div>
+
+  <div class="map-box" style="margin-bottom:20px;">
+    <div class="map-overlay">
+      <div style="font-size:48px;margin-bottom:8px;">🗺️</div>
+      <div style="font-size:14px;color:#666;font-weight:500;">Live Map Tracking</div>
+      <div style="font-size:12px;color:#888;margin-top:4px;">Updates every 10 seconds</div>
+    </div>
+  </div>
+
+  {% if tracking and tracking.partner %}
+  <div class="driver-card">
+    <div class="driver-avatar">🧑</div>
+    <div>
+      <div class="driver-name">{{ tracking.partner.user.full_name }}</div>
+      <div class="driver-vehicle">🛵 {{ tracking.partner.vehicle_type }} · {{ tracking.partner.vehicle_number }}</div>
+      <div class="driver-rating">⭐ {{ tracking.partner.average_rating }} · {{ tracking.partner.total_deliveries }} deliveries</div>
+    </div>
+    <div class="driver-btns">
+      <button class="driver-action" onclick="showToast('Calling...','info')">📞</button>
+      <button class="driver-action" onclick="showToast('Chat coming soon','info')">💬</button>
+    </div>
+  </div>
+  {% endif %}
+
+  <div class="tracking-steps">
+    {% with statuses=order.history.all %}
+    {% for label, done, active in "Order Placed|1|0,Order Confirmed|1|0,Picking Items|0|1,Out for Delivery|0|0,Delivered|0|0"|split:"," %}
+    {% endfor %}
+    {% endwith %}
+    {% for h in order.history.all %}
+    <div class="ts-step done">
+      <div class="ts-dot">✓</div>
+      <div><div class="ts-label">{{ h.get_status_display }}</div><div class="ts-time">{{ h.created_at|date:"h:i A" }}</div></div>
+    </div>
+    {% endfor %}
+    {% if order.status != 'delivered' and order.status != 'cancelled' %}
+    <div class="ts-step active">
+      <div class="ts-dot">●</div>
+      <div><div class="ts-label">{{ order.get_status_display }}</div><div class="ts-time">In progress...</div></div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

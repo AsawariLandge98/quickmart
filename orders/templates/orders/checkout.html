@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+{% block title %}Checkout — QuickMart{% endblock %}
+{% block content %}
+<div class="checkout-wrap">
+  <h1 class="page-title">Checkout</h1>
+  <form method="POST" action="{% url 'orders:place_order' %}" id="checkoutForm">
+    {% csrf_token %}
+    <input type="hidden" name="address_id" id="selectedAddress">
+    <input type="hidden" name="payment_method" id="selectedPayment" value="cod">
+    <div class="checkout-grid">
+      <div>
+        <!-- ADDRESS -->
+        <div class="checkout-section">
+          <div class="cs-title"><span class="step-num">1</span> Delivery Address</div>
+          {% for addr in addresses %}
+          <div class="address-opt {% if forloop.first %}selected{% endif %}" data-addr="{{ addr.id }}" onclick="selectAddress('{{ addr.id }}')">
+            <div class="ao-radio"><div class="ao-dot"></div></div>
+            <div style="flex:1">
+              <div class="ao-label">{{ addr.get_label_display }} {% if addr.is_default %}· Default{% endif %}</div>
+              <div style="font-weight:500;font-size:14px;">{{ addr.full_name }}</div>
+              <div class="ao-addr">{{ addr.address_line1 }}, {{ addr.city }}, {{ addr.state }} — {{ addr.pincode }}</div>
+              <div class="ao-addr">📞 {{ addr.phone }}</div>
+            </div>
+          </div>
+          {% empty %}
+          <div style="text-align:center;padding:20px;background:var(--light);border-radius:var(--r);">
+            <p style="color:var(--mid);margin-bottom:12px;">No addresses saved</p>
+            <a href="{% url 'users:add_address' %}?next={% url 'orders:checkout' %}" class="btn-primary" style="font-size:13px;padding:8px 16px;">+ Add Address</a>
+          </div>
+          {% endfor %}
+          {% if addresses %}
+          <a href="{% url 'users:add_address' %}?next={% url 'orders:checkout' %}" style="display:block;text-align:center;padding:10px;border:1.5px dashed var(--border);border-radius:9px;font-size:13px;color:var(--mid);margin-top:8px;">+ Add New Address</a>
+          {% endif %}
+        </div>
+
+        <!-- PAYMENT -->
+        <div class="checkout-section">
+          <div class="cs-title"><span class="step-num">2</span> Payment Method</div>
+          {% for method_id, method_name in payment_methods %}
+          <div class="pay-opt {% if forloop.first %}selected{% endif %}" data-method="{{ method_id }}" onclick="selectPayment('{{ method_id }}')">
+            <div class="ao-radio"><div class="ao-dot"></div></div>
+            <div class="pay-icon">{% if method_id == 'upi' %}📱{% elif method_id == 'card' %}💳{% elif method_id == 'netbanking' %}🏦{% else %}💵{% endif %}</div>
+            <div>
+              <div class="pay-name">{{ method_name }}</div>
+              {% if method_id == 'upi' %}<div class="pay-desc">PhonePe · GPay · Paytm</div>
+              {% elif method_id == 'card' %}<div class="pay-desc">Visa · Mastercard · RuPay</div>
+              {% elif method_id == 'cod' %}<div class="pay-desc">Pay at your doorstep</div>{% endif %}
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+
+        <!-- SPECIAL INSTRUCTIONS -->
+        <div class="checkout-section">
+          <div class="cs-title"><span class="step-num">3</span> Additional Info</div>
+          <div class="form-group">
+            <label class="form-label">Special Instructions (optional)</label>
+            <textarea name="special_instructions" class="form-input" rows="2" placeholder="Leave at door, ring bell, etc."></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- SUMMARY -->
+      <div>
+        <div class="checkout-section" style="position:sticky;top:80px;">
+          <div class="cs-title">Order Summary</div>
+          {% for item in items %}
+          <div class="checkout-item-row">
+            <div class="ci-img">
+              {% if item.variant.product.display_image %}<img src="{{ item.variant.product.display_image }}" alt="">
+              {% else %}<span style="font-size:22px;">{{ item.variant.product.category.icon }}</span>{% endif %}
+            </div>
+            <div style="flex:1;">
+              <div class="ci-name">{{ item.variant.product.name|truncatechars:35 }}</div>
+              <div class="ci-qty">{{ item.variant.name }} × {{ item.quantity }}</div>
+            </div>
+            <div class="ci-price">₹{{ item.get_total }}</div>
+          </div>
+          {% endfor %}
+          <div style="margin-top:16px;">
+            <div class="summary-row"><span>Subtotal</span><span>₹{{ cart.get_subtotal }}</span></div>
+            <div class="summary-row"><span>Delivery</span><span>{% if cart.get_delivery_fee == 0 %}<span style="color:var(--green)">FREE</span>{% else %}₹{{ cart.get_delivery_fee }}{% endif %}</span></div>
+            {% if cart.get_discount > 0 %}<div class="summary-row" style="color:var(--green);"><span>Discount</span><span>−₹{{ cart.get_discount }}</span></div>{% endif %}
+            <div class="summary-row total"><span>Total</span><span>₹{{ cart.get_total }}</span></div>
+          </div>
+          <div style="background:var(--green-light);border-radius:9px;padding:10px 14px;font-size:13px;color:var(--green);margin:12px 0;display:flex;align-items:center;gap:6px;">
+            <span>⚡</span> Estimated delivery: <strong>~10 minutes</strong>
+          </div>
+          <button type="submit" class="place-order-btn" {% if not addresses %}disabled{% endif %}>
+            🛒 Place Order — ₹{{ cart.get_total }}
+          </button>
+          {% if not addresses %}
+          <p style="color:var(--red);font-size:13px;text-align:center;margin-top:8px;">Please add a delivery address first</p>
+          {% endif %}
+          <div style="text-align:center;font-size:12px;color:var(--mid);margin-top:10px;">🔒 Safe & Secure Payment · All data encrypted</div>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>
+<script>
+// Pre-select first address
+document.addEventListener('DOMContentLoaded', function() {
+  const firstAddr = document.querySelector('.address-opt');
+  if (firstAddr) document.getElementById('selectedAddress').value = firstAddr.dataset.addr;
+});
+</script>
+{% endblock %}

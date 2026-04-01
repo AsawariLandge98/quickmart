@@ -1,0 +1,249 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}{{ product.name }} — QuickMart{% endblock %}
+{% block content %}
+<div class="detail-wrap">
+  <!-- Breadcrumb -->
+  <div class="breadcrumb">
+    <a href="{% url 'store:home' %}">Home</a>
+    <span class="breadcrumb-sep">›</span>
+    <a href="{% url 'store:category' product.category.slug %}">{{ product.category.name }}</a>
+    <span class="breadcrumb-sep">›</span>
+    <span style="color:var(--dark)">{{ product.name|truncatechars:40 }}</span>
+  </div>
+
+  <div class="detail-grid">
+    <!-- IMAGES -->
+    <div class="detail-images">
+      <div class="detail-main-img">
+        {% if product.display_image %}
+        <img src="{{ product.display_image }}" alt="{{ product.name }}" id="mainProductImg">
+        {% else %}
+        <span style="font-size:120px;">{{ product.category.icon }}</span>
+        {% endif %}
+      </div>
+      <div class="detail-thumbs">
+        {% if product.display_image %}
+        <div class="detail-thumb active" onclick="changeMainImage('{{ product.display_image }}', this)">
+          <img src="{{ product.display_image }}" alt="">
+        </div>
+        {% endif %}
+        {% if product.image2 %}
+        <div class="detail-thumb" onclick="changeMainImage('{{ product.image2.url }}', this)">
+          <img src="{{ product.image2.url }}" alt="">
+        </div>
+        {% endif %}
+        {% if product.image3 %}
+        <div class="detail-thumb" onclick="changeMainImage('{{ product.image3.url }}', this)">
+          <img src="{{ product.image3.url }}" alt="">
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- INFO -->
+    <div class="detail-info">
+      {% if product.brand %}<div class="detail-brand">{{ product.brand.name }}</div>{% endif %}
+      <h1 class="detail-name">{{ product.name }}</h1>
+
+      <div class="detail-rating-row">
+        <span class="detail-stars">{% for i in "12345" %}{% if forloop.counter <= product.average_rating|floatformat:0|add:0 %}★{% else %}☆{% endif %}{% endfor %}</span>
+        <span class="rating-num">{{ product.average_rating }}</span>
+        <span class="review-link">({{ product.total_reviews }} reviews)</span>
+        <span style="font-size:12px;color:var(--mid);">{{ product.total_sold }}+ sold</span>
+      </div>
+
+      {% with variant=variants.first %}
+      {% if variant %}
+      <div class="price-row" id="priceRow">
+        <span class="price-big" id="variantPrice">₹{{ variant.price }}</span>
+        {% if variant.mrp > variant.price %}
+        <span class="price-strike" id="variantMrp">₹{{ variant.mrp }}</span>
+        <span class="price-save">{{ variant.discount_percentage }}% OFF</span>
+        {% endif %}
+      </div>
+      <div class="inclusive-tax">Inclusive of all taxes</div>
+      {% endif %}
+      {% endwith %}
+
+      <div class="delivery-promise">
+        <span class="dp-icon">⚡</span>
+        <span class="dp-text">Delivery in <strong>10 minutes</strong> · Civil Lines store</span>
+      </div>
+
+      <!-- Variants -->
+      {% if variants.count > 1 %}
+      <div class="variant-section">
+        <div class="variant-label">Select Size / Pack</div>
+        <div class="variant-opts">
+          {% for v in variants %}
+          <button class="variant-opt {% if forloop.first %}active{% endif %}"
+            onclick="selectVariant(this, '{{ v.id }}', {{ v.price }}, {{ v.mrp }})">
+            {{ v.name }}
+          </button>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- Actions -->
+      <div class="detail-actions">
+        {% with variant=variants.first %}
+        {% if variant %}
+        <button class="btn-add-cart" id="addToCartBtn" data-variant-id="{{ variant.id }}"
+          onclick="addToCart(this.dataset.variantId, null); this.textContent='✅ Added!'; setTimeout(()=>this.textContent='🛒 Add to Cart',2000)">
+          🛒 Add to Cart
+        </button>
+        {% endif %}
+        {% endwith %}
+        <button class="btn-wishlist {% if in_wishlist %}in-wishlist{% endif %}" id="wishlistBtn"
+          onclick="toggleWishlist('{{ product.id }}', this)">
+          {% if in_wishlist %}❤️ Remove from Wishlist{% else %}♡ Add to Wishlist{% endif %}
+        </button>
+      </div>
+
+      <!-- Highlights -->
+      <div class="highlights-box">
+        <div class="highlight-row"><span class="hi-icon">🔄</span><span>7-day easy returns & full refunds</span></div>
+        <div class="highlight-row"><span class="hi-icon">✅</span><span>100% authentic product guaranteed</span></div>
+        <div class="highlight-row"><span class="hi-icon">🌿</span><span>Sourced from quality-verified suppliers</span></div>
+        <div class="highlight-row"><span class="hi-icon">💳</span><span>All payment methods accepted</span></div>
+        <div class="highlight-row"><span class="hi-icon">⚡</span><span>10-minute express delivery</span></div>
+      </div>
+
+      <!-- Tabs -->
+      <div class="detail-tabs">
+        <button class="detail-tab active" onclick="showTab('desc', this)">Description</button>
+        <button class="detail-tab" onclick="showTab('reviews', this)">Reviews ({{ product.total_reviews }})</button>
+        <button class="detail-tab" onclick="showTab('specs', this)">Details</button>
+      </div>
+
+      <div id="tab-desc" class="tab-content">
+        <p style="font-size:14px;color:var(--mid);line-height:1.8;">{{ product.description|default:"Premium quality product sourced from trusted suppliers. Freshness and quality guaranteed on every order." }}</p>
+        {% if product.tags %}
+        <div style="margin-top:14px;display:flex;flex-wrap:wrap;gap:6px;">
+          {% for tag in product.tags.split:"," %}
+          <span style="padding:4px 10px;background:var(--light);border-radius:5px;font-size:12px;color:var(--mid);">{{ tag|trim }}</span>
+          {% endfor %}
+        </div>
+        {% endif %}
+      </div>
+
+      <div id="tab-reviews" class="tab-content" style="display:none;">
+        <!-- Rating Summary -->
+        <div class="review-summary">
+          <div style="text-align:center">
+            <div class="big-rating">{{ product.average_rating }}</div>
+            <div style="font-size:20px;color:var(--yellow);">★★★★★</div>
+            <div style="font-size:13px;color:var(--mid);margin-top:4px;">{{ product.total_reviews }} ratings</div>
+          </div>
+          <div class="rating-bars">
+            {% for star in "54321" %}
+            <div class="rb-row">
+              <span class="rb-label">{{ star }}</span>
+              <div class="rb-track">
+                <div class="rb-fill" style="width:{% if star == '5' %}72{% elif star == '4' %}18{% elif star == '3' %}6{% elif star == '2' %}3{% else %}1{% endif %}%"></div>
+              </div>
+              <span class="rb-count">{% if star == '5' %}72{% elif star == '4' %}18{% elif star == '3' %}6{% elif star == '2' %}3{% else %}1{% endif %}%</span>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+
+        <!-- Review list -->
+        {% for review in reviews %}
+        <div class="review-card">
+          <div class="rc-header">
+            <div class="rc-avatar">{% if review.user.profile_image %}<img src="{{ review.user.profile_image.url }}" alt="">{% else %}{{ review.user.first_name|first|upper }}{% endif %}</div>
+            <div>
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
+                <span class="rc-name">{{ review.user.full_name }}</span>
+                <span class="rc-date">{{ review.created_at|date:"M d, Y" }}</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:8px;margin-top:3px;">
+                <span style="color:var(--yellow);font-size:13px;">{% for i in "12345" %}{% if forloop.counter <= review.rating %}★{% else %}☆{% endif %}{% endfor %}</span>
+                {% if review.is_verified_purchase %}<span class="verified">✓ Verified Purchase</span>{% endif %}
+              </div>
+            </div>
+          </div>
+          {% if review.title %}<div style="font-weight:600;margin-bottom:6px;">{{ review.title }}</div>{% endif %}
+          <div class="review-text">{{ review.body }}</div>
+          {% if review.image %}
+          <div class="review-img-row"><div class="review-img-thumb"><img src="{{ review.image.url }}" alt=""></div></div>
+          {% endif %}
+        </div>
+        {% empty %}
+        <p style="color:var(--mid);text-align:center;padding:24px;">No reviews yet. Be the first to review!</p>
+        {% endfor %}
+
+        <!-- Add Review Form -->
+        {% if request.user.is_authenticated %}
+        <div class="review-form">
+          <div style="font-weight:700;margin-bottom:14px;">Write a Review</div>
+          <form method="POST" action="{% url 'store:add_review' product.slug %}" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="form-group">
+              <label class="form-label">Your Rating</label>
+              <div class="star-rating">
+                <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
+              </div>
+              <input type="hidden" name="rating" id="ratingInput" value="5">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Title (optional)</label>
+              <input type="text" name="title" class="form-input" placeholder="Summarize your experience">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Your Review</label>
+              <textarea name="body" class="form-input" rows="3" placeholder="Share details about your experience..." required></textarea>
+            </div>
+            <button type="submit" class="form-btn" style="max-width:200px;">Submit Review</button>
+          </form>
+        </div>
+        {% else %}
+        <div style="text-align:center;padding:20px;background:var(--light);border-radius:var(--r-lg);margin-top:16px;">
+          <p style="color:var(--mid);margin-bottom:12px;">Sign in to write a review</p>
+          <a href="{% url 'users:login' %}?next={{ request.path }}" class="btn-primary">Sign In</a>
+        </div>
+        {% endif %}
+      </div>
+
+      <div id="tab-specs" class="tab-content" style="display:none;">
+        <table style="width:100%;border-collapse:collapse;font-size:14px;">
+          {% if product.brand %}<tr><td style="padding:10px;color:var(--mid);border-bottom:1px solid var(--border);width:40%">Brand</td><td style="padding:10px;border-bottom:1px solid var(--border);">{{ product.brand.name }}</td></tr>{% endif %}
+          <tr><td style="padding:10px;color:var(--mid);border-bottom:1px solid var(--border);">Category</td><td style="padding:10px;border-bottom:1px solid var(--border);">{{ product.category.name }}</td></tr>
+          <tr><td style="padding:10px;color:var(--mid);border-bottom:1px solid var(--border);">SKU</td><td style="padding:10px;border-bottom:1px solid var(--border);">{{ product.sku }}</td></tr>
+          {% with v=variants.first %}{% if v %}
+          <tr><td style="padding:10px;color:var(--mid);border-bottom:1px solid var(--border);">Pack Size</td><td style="padding:10px;border-bottom:1px solid var(--border);">{{ v.name }}</td></tr>
+          <tr><td style="padding:10px;color:var(--mid);">In Stock</td><td style="padding:10px;color:{% if v.is_in_stock %}var(--green){% else %}var(--red){% endif %};">{% if v.is_in_stock %}✅ Yes{% else %}❌ Out of Stock{% endif %}</td></tr>
+          {% endif %}{% endwith %}
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Related Products -->
+  {% if related %}
+  <div class="related-section">
+    <div class="section-header">
+      <div class="section-title">You might also like</div>
+      <a href="{% url 'store:category' product.category.slug %}" class="section-link">See all →</a>
+    </div>
+    <div class="products-grid">
+      {% for p in related %}
+      {% with product=p %}{% include 'store/product_card.html' %}{% endwith %}
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+</div>
+
+<script>
+function showTab(name, btn) {
+  document.querySelectorAll('.tab-content').forEach(t => t.style.display = 'none');
+  document.querySelectorAll('.detail-tab').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + name).style.display = 'block';
+  btn.classList.add('active');
+}
+</script>
+{% endblock %}

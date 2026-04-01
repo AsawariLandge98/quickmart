@@ -1,0 +1,94 @@
+{% extends 'admin_panel/base.html' %}
+{% block title %}Order #{{ order.order_number }}{% endblock %}
+{% block content %}
+<div class="admin-page-header">
+  <div>
+    <a href="{% url 'admin_panel:orders' %}" style="color:var(--mid);font-size:13px;">← Orders</a>
+    <h1 class="admin-page-title">Order #{{ order.order_number }}</h1>
+  </div>
+  <span class="status-badge status-{{ order.status }}" style="font-size:14px;padding:6px 16px;">{{ order.get_status_display }}</span>
+</div>
+<div style="display:grid;grid-template-columns:1.5fr 1fr;gap:20px;">
+  <div>
+    <div class="admin-card" style="margin-bottom:20px;">
+      <div class="admin-card-header"><span class="admin-card-title">Order Items</span></div>
+      <table class="data-table">
+        <thead><tr><th>Product</th><th>Variant</th><th>Qty</th><th>Price</th><th>Total</th></tr></thead>
+        <tbody>
+          {% for item in order.items.all %}
+          <tr>
+            <td>{{ item.product_name }}</td>
+            <td>{{ item.variant_name }}</td>
+            <td>{{ item.quantity }}</td>
+            <td>₹{{ item.unit_price }}</td>
+            <td>₹{{ item.total_price }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      <div style="padding:16px 20px;background:var(--lighter);">
+        <div class="summary-row"><span>Subtotal</span><span>₹{{ order.subtotal }}</span></div>
+        <div class="summary-row"><span>Delivery</span><span>₹{{ order.delivery_fee }}</span></div>
+        {% if order.discount_amount > 0 %}<div class="summary-row" style="color:var(--green);"><span>Discount</span><span>−₹{{ order.discount_amount }}</span></div>{% endif %}
+        <div class="summary-row total"><span>Total</span><span>₹{{ order.total_amount }}</span></div>
+      </div>
+    </div>
+    <!-- Update Status -->
+    <div class="form-section">
+      <div class="form-section-title">Update Order Status</div>
+      <form method="POST">
+        {% csrf_token %}
+        <div class="admin-form-grid">
+          <div class="form-group">
+            <label class="form-label">New Status</label>
+            <select name="status" class="form-input">
+              {% for sc, sn in status_choices %}<option value="{{ sc }}" {% if order.status == sc %}selected{% endif %}>{{ sn }}</option>{% endfor %}
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Note (optional)</label>
+            <input type="text" name="note" class="form-input" placeholder="Internal note">
+          </div>
+        </div>
+        <button type="submit" class="btn-primary">Update Status</button>
+      </form>
+    </div>
+  </div>
+  <div>
+    <div class="admin-card" style="margin-bottom:16px;">
+      <div class="admin-card-header"><span class="admin-card-title">Customer</span></div>
+      <div style="padding:16px 20px;">
+        <div style="font-weight:600;">{{ order.user.full_name }}</div>
+        <div style="font-size:13px;color:var(--mid);margin-top:4px;">{{ order.user.email }}</div>
+        {% if order.user.phone %}<div style="font-size:13px;color:var(--mid);">📞 {{ order.user.phone }}</div>{% endif %}
+        <a href="{% url 'admin_panel:user_detail' order.user.id %}" class="action-btn btn-view-sm" style="margin-top:10px;display:inline-flex;">View Profile</a>
+      </div>
+    </div>
+    <div class="admin-card" style="margin-bottom:16px;">
+      <div class="admin-card-header"><span class="admin-card-title">Delivery Address</span></div>
+      <div style="padding:16px 20px;font-size:13px;">
+        {% if order.delivery_address %}
+        <div style="font-weight:500;">{{ order.delivery_address.full_name }}</div>
+        <div style="color:var(--mid);margin-top:4px;">{{ order.delivery_address.address_line1 }}, {{ order.delivery_address.city }}<br>{{ order.delivery_address.state }} — {{ order.delivery_address.pincode }}<br>📞 {{ order.delivery_address.phone }}</div>
+        {% endif %}
+      </div>
+    </div>
+    <div class="admin-card">
+      <div class="admin-card-header"><span class="admin-card-title">Status History</span></div>
+      <div style="padding:16px 20px;">
+        {% for h in order.history.all %}
+        <div style="display:flex;gap:10px;padding-bottom:12px;{% if not forloop.last %}border-bottom:1px solid var(--border);margin-bottom:12px;{% endif %}">
+          <span class="status-badge status-{{ h.status }}" style="flex-shrink:0;">{{ h.status }}</span>
+          <div>
+            <div style="font-size:12px;color:var(--mid);">{{ h.created_at|date:"M d h:i A" }}</div>
+            {% if h.note %}<div style="font-size:13px;margin-top:2px;">{{ h.note }}</div>{% endif %}
+          </div>
+        </div>
+        {% empty %}
+        <p style="color:var(--mid);font-size:13px;">No history</p>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

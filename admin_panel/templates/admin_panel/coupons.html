@@ -1,0 +1,28 @@
+{% extends 'admin_panel/base.html' %}
+{% block title %}Coupons{% endblock %}
+{% block content %}
+<div class="admin-page-header">
+  <h1 class="admin-page-title">Coupons</h1>
+  <a href="{% url 'admin_panel:coupon_add' %}" class="btn-primary">+ Create Coupon</a>
+</div>
+<div class="admin-card">
+  <table class="data-table">
+    <thead><tr><th>Code</th><th>Type</th><th>Value</th><th>Min Order</th><th>Used</th><th>Valid Until</th><th>Status</th></tr></thead>
+    <tbody>
+      {% for c in coupons %}
+      <tr>
+        <td><code style="font-family:monospace;font-weight:700;color:var(--brand);">{{ c.code }}</code></td>
+        <td>{{ c.get_discount_type_display }}</td>
+        <td>{% if c.discount_type == 'percentage' %}{{ c.discount_value }}%{% else %}₹{{ c.discount_value }}{% endif %}</td>
+        <td>₹{{ c.min_order_amount }}</td>
+        <td>{{ c.usage_count }}{% if c.usage_limit %}/{{ c.usage_limit }}{% endif %}</td>
+        <td style="font-size:12px;">{{ c.valid_until|date:"M d, Y" }}</td>
+        <td><span class="{% if c.is_active %}badge-active{% else %}badge-inactive{% endif %}">{% if c.is_active %}Active{% else %}Inactive{% endif %}</span></td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="7" style="text-align:center;padding:40px;color:var(--mid);">No coupons yet. <a href="{% url 'admin_panel:coupon_add' %}" style="color:var(--brand);">Create one!</a></td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

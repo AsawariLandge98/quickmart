@@ -1,0 +1,43 @@
+{% extends 'admin_panel/base.html' %}
+{% block title %}User: {{ u.full_name }}{% endblock %}
+{% block content %}
+<div class="admin-page-header">
+  <div><a href="{% url 'admin_panel:users' %}" style="color:var(--mid);font-size:13px;">← Users</a><h1 class="admin-page-title">{{ u.full_name }}</h1></div>
+  <span class="{% if u.is_active %}badge-active{% else %}badge-inactive{% endif %}">{% if u.is_active %}Active{% else %}Inactive{% endif %}</span>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1.5fr;gap:20px;">
+  <div>
+    <div class="form-section">
+      <div class="form-section-title">User Details</div>
+      <table style="width:100%;font-size:14px;border-collapse:collapse;">
+        <tr><td style="padding:8px 0;color:var(--mid);width:40%">Email</td><td>{{ u.email }}</td></tr>
+        <tr><td style="padding:8px 0;color:var(--mid);">Phone</td><td>{{ u.phone|default:"—" }}</td></tr>
+        <tr><td style="padding:8px 0;color:var(--mid);">Joined</td><td>{{ u.date_joined|date:"M d, Y" }}</td></tr>
+        <tr><td style="padding:8px 0;color:var(--mid);">Referral</td><td>{{ u.referral_code }}</td></tr>
+        <tr><td style="padding:8px 0;color:var(--mid);">Coins</td><td>🪙 {{ u.reward_coins }}</td></tr>
+        <tr><td style="padding:8px 0;color:var(--mid);">Staff</td><td>{% if u.is_staff %}Yes{% else %}No{% endif %}</td></tr>
+      </table>
+    </div>
+  </div>
+  <div>
+    <div class="admin-card">
+      <div class="admin-card-header"><span class="admin-card-title">Recent Orders</span></div>
+      <table class="data-table">
+        <thead><tr><th>Order</th><th>Amount</th><th>Status</th><th>Date</th></tr></thead>
+        <tbody>
+          {% for order in orders %}
+          <tr>
+            <td><a href="{% url 'admin_panel:order_detail' order.id %}" style="color:var(--brand);">#{{ order.order_number }}</a></td>
+            <td>₹{{ order.total_amount }}</td>
+            <td><span class="status-badge status-{{ order.status }}">{{ order.get_status_display }}</span></td>
+            <td style="font-size:12px;">{{ order.placed_at|date:"M d, Y" }}</td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="4" style="text-align:center;color:var(--mid);padding:20px;">No orders yet</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,41 @@
+{% load static %}
+{% with variant=product.default_variant %}
+<div class="product-card">
+  <a href="{% url 'store:product_detail' product.slug %}" style="display:contents;">
+    <div class="product-img-wrap {% if product.category.slug %}placeholder-{% if 'dairy' in product.category.slug %}dairy{% elif 'fruit' in product.category.slug %}fruits{% elif 'veg' in product.category.slug %}veggies{% elif 'snack' in product.category.slug %}snacks{% elif 'bev' in product.category.slug %}beverage{% else %}default{% endif %}{% endif %}">
+      {% if product.display_image %}
+      <img src="{{ product.display_image }}" alt="{{ product.name }}" loading="lazy">
+      {% else %}
+      <span class="product-img-emoji">{{ product.category.icon }}</span>
+      {% endif %}
+      {% if variant and variant.discount_percentage > 0 %}
+      <span class="discount-badge">{{ variant.discount_percentage }}% OFF</span>
+      {% endif %}
+    </div>
+  </a>
+  {% if request.user.is_authenticated %}
+  <button class="wishlist-btn" onclick="toggleWishlist('{{ product.id }}', this)" title="Wishlist">🤍</button>
+  {% endif %}
+  <div class="product-info">
+    {% if product.brand %}<div class="product-brand">{{ product.brand.name }}</div>{% endif %}
+    <a href="{% url 'store:product_detail' product.slug %}" class="product-name">{{ product.name|truncatechars:50 }}</a>
+    {% if variant %}<div class="product-weight">{{ variant.name }}</div>{% endif %}
+    <div class="delivery-eta">⚡ 10 min delivery</div>
+    <div class="product-rating">
+      <span class="stars">{% for i in "12345" %}{% if forloop.counter <= product.average_rating|floatformat:0|add:0 %}★{% else %}☆{% endif %}{% endfor %}</span>
+      <span class="rating-count">({{ product.total_reviews }})</span>
+    </div>
+    <div class="product-footer">
+      <div>
+        {% if variant %}
+        <span class="price-main">₹{{ variant.price }}</span>
+        {% if variant.mrp > variant.price %}<span class="price-mrp">₹{{ variant.mrp }}</span>{% endif %}
+        {% else %}<span class="price-main">—</span>{% endif %}
+      </div>
+      {% if variant %}
+      <button class="add-to-cart-btn" onclick="addToCart('{{ variant.id }}', this)" title="Add to cart">+</button>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endwith %}

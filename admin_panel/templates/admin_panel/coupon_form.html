@@ -1,0 +1,19 @@
+{% extends 'admin_panel/base.html' %}
+{% block title %}Create Coupon{% endblock %}
+{% block content %}
+<div class="admin-page-header"><h1 class="admin-page-title">Create Coupon</h1><a href="{% url 'admin_panel:coupons' %}" style="color:var(--mid);font-size:13px;">← Back</a></div>
+<div class="form-section" style="max-width:600px;">
+  <form method="POST">{% csrf_token %}
+    <div class="admin-form-grid">
+      <div class="form-group"><label class="form-label">Coupon Code *</label><input type="text" name="code" class="form-input" placeholder="SAVE20" required style="text-transform:uppercase;"></div>
+      <div class="form-group"><label class="form-label">Description</label><input type="text" name="description" class="form-input" placeholder="20% off on all orders"></div>
+      <div class="form-group"><label class="form-label">Discount Type</label><select name="discount_type" class="form-input"><option value="percentage">Percentage %</option><option value="flat">Flat Amount ₹</option></select></div>
+      <div class="form-group"><label class="form-label">Discount Value</label><input type="number" name="discount_value" class="form-input" placeholder="20" step="0.01" required></div>
+      <div class="form-group"><label class="form-label">Min Order Amount</label><input type="number" name="min_order_amount" class="form-input" value="0" step="0.01"></div>
+      <div class="form-group"><label class="form-label">Valid From</label><input type="datetime-local" name="valid_from" class="form-input" required></div>
+      <div class="form-group"><label class="form-label">Valid Until</label><input type="datetime-local" name="valid_until" class="form-input" required></div>
+    </div>
+    <button type="submit" class="btn-primary" style="margin-top:8px;">Create Coupon</button>
+  </form>
+</div>
+{% endblock %}

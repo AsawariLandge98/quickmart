@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block title %}{{ category.name }} — QuickMart{% endblock %}
+{% block content %}
+<div class="section">
+  <div class="section-header">
+    <h1 class="section-title">{{ category.icon }} {{ category.name }}</h1>
+    <span style="color:var(--mid);font-size:14px;">{{ products|length }} products</span>
+  </div>
+  {% if subcategories %}
+  <div class="filter-bar" style="margin-bottom:20px;">
+    <a href="{% url 'store:category' category.slug %}" class="filter-chip active">All</a>
+    {% for sub in subcategories %}
+    <a href="{% url 'store:category' sub.slug %}" class="filter-chip">{{ sub.name }}</a>
+    {% endfor %}
+  </div>
+  {% endif %}
+  <div class="products-grid">
+    {% for product in products %}{% include 'store/product_card.html' %}{% endfor %}
+  </div>
+</div>
+{% endblock %}

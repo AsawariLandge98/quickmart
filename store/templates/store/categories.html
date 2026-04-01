@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block title %}All Categories — QuickMart{% endblock %}
+{% block content %}
+<div class="section">
+  <h1 class="section-title" style="margin-bottom:24px;">All Categories</h1>
+  <div class="cat-grid" style="grid-template-columns:repeat(auto-fill,minmax(130px,1fr));">
+    {% for cat in categories %}
+    <a href="{% url 'store:category' cat.slug %}" class="cat-card">
+      {% if cat.image %}<img src="{{ cat.image.url }}" alt="{{ cat.name }}" class="cat-img">
+      {% else %}<div class="cat-icon">{{ cat.icon }}</div>{% endif %}
+      <div class="cat-name">{{ cat.name }}</div>
+    </a>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

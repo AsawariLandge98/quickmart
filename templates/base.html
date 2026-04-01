@@ -1,0 +1,181 @@
+﻿{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}QuickMart — 10 Minute Delivery{% endblock %}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'css/main.css' %}">
+{% block extra_css %}{% endblock %}
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="nav-inner">
+
+    <!-- Logo -->
+    <a href="{% url 'store:home' %}" class="nav-logo">
+      <div class="logo-mark">Q</div>
+      <span class="logo-text">Quick<span>Mart</span></span>
+    </a>
+
+    <!-- Location -->
+    <div class="nav-location" id="locationBtn">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ff5200" stroke-width="2.5" stroke-linecap="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+      <div class="loc-text">
+        <strong>Nagpur, MH</strong>
+        <span>Civil Lines</span>
+      </div>
+      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+
+    <!-- Search -->
+    <div class="nav-search-wrap">
+      <form action="{% url 'store:search' %}" method="GET" class="nav-search-form">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="2" stroke-linecap="round" style="margin:0 10px;flex-shrink:0"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" name="q" placeholder="Search for groceries, brands..." value="{{ request.GET.q }}" id="navSearchInput" autocomplete="off">
+        <button type="submit" class="search-btn">Search</button>
+      </form>
+      <div class="autocomplete-box" id="autocompleteBox"></div>
+    </div>
+
+    <!-- Nav Actions -->
+    <div class="nav-actions">
+      {% if user.is_authenticated %}
+        <a href="{% url 'users:wishlist' %}" class="nav-btn icon-btn" title="Wishlist">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          <span class="btn-label">Wishlist</span>
+        </a>
+        <a href="{% url 'orders:list' %}" class="nav-btn icon-btn">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 10V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h8"/><polyline points="16 2 16 6 8 6 8 2"/><circle cx="18" cy="18" r="3"/><path d="m22 22-1.5-1.5"/></svg>
+          <span class="btn-label">Orders</span>
+        </a>
+        <div class="nav-dropdown-wrap">
+          <button class="nav-btn icon-btn user-btn">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <span class="btn-label">{{ user.first_name }}</span>
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="nav-dropdown">
+            <a href="{% url 'users:profile' %}">My Profile</a>
+            <a href="{% url 'orders:list' %}">My Orders</a>
+            <a href="{% url 'users:wishlist' %}">Wishlist</a>
+            <a href="{% url 'users:spin' %}">Spin &amp; Win</a>
+            {% if user.is_staff %}
+            <div class="dropdown-divider"></div>
+            <a href="{% url 'admin_panel:dashboard' %}" style="color:var(--brand);font-weight:600;">Admin Panel</a>
+            {% endif %}
+            <div class="dropdown-divider"></div>
+            <a href="{% url 'users:logout' %}" style="color:#e53935;">Sign Out</a>
+          </div>
+        </div>
+      {% else %}
+        <a href="{% url 'users:login' %}" class="nav-btn icon-btn">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          <span class="btn-label">Login</span>
+        </a>
+      {% endif %}
+      <a href="{% url 'cart:detail' %}" class="nav-btn cart-btn">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+        <span>Cart</span>
+        <span class="cart-count" id="cartCountBadge">{{ cart_count }}</span>
+      </a>
+    </div>
+
+    <!-- Hamburger -->
+    <button class="hamburger" id="hamburger">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+  </div>
+
+  <!-- Mobile Menu -->
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="{% url 'store:home' %}">Home</a>
+    <a href="{% url 'store:product_list' %}">Products</a>
+    <a href="{% url 'store:categories' %}">Categories</a>
+    <a href="{% url 'cart:detail' %}">Cart ({{ cart_count }})</a>
+    {% if user.is_authenticated %}
+      <a href="{% url 'orders:list' %}">My Orders</a>
+      <a href="{% url 'users:profile' %}">Profile</a>
+      <a href="{% url 'users:spin' %}">Spin &amp; Win</a>
+      {% if user.is_staff %}<a href="{% url 'admin_panel:dashboard' %}">Admin Panel</a>{% endif %}
+      <a href="{% url 'users:logout' %}">Logout</a>
+    {% else %}
+      <a href="{% url 'users:login' %}">Login</a>
+      <a href="{% url 'users:register' %}">Register</a>
+    {% endif %}
+  </div>
+</nav>
+
+<!-- MESSAGES -->
+{% if messages %}
+<div class="messages-container">
+  {% for msg in messages %}
+  <div class="alert alert-{{ msg.tags }}" onclick="this.remove()">
+    {{ msg }} <span class="alert-close">&times;</span>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+<!-- PAGE CONTENT -->
+<main>
+{% block content %}{% endblock %}
+</main>
+
+<!-- FOOTER -->
+{% block footer %}
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="footer-logo">QuickMart</div>
+        <p>India's fastest grocery delivery. 5000+ products delivered to your door in 10 minutes.</p>
+        <div class="app-btns">
+          <div class="app-btn">App Store</div>
+          <div class="app-btn">Google Play</div>
+        </div>
+      </div>
+      <div>
+        <div class="footer-heading">Company</div>
+        <a href="#">About Us</a>
+        <a href="#">Careers</a>
+        <a href="#">Press</a>
+        <a href="#">Blog</a>
+      </div>
+      <div>
+        <div class="footer-heading">Categories</div>
+        {% for cat in nav_categories %}
+        <a href="{% url 'store:category' cat.slug %}">{{ cat.name }}</a>
+        {% endfor %}
+      </div>
+      <div>
+        <div class="footer-heading">Help</div>
+        <a href="#">Help Center</a>
+        <a href="{% url 'orders:list' %}">Track Order</a>
+        <a href="#">Returns</a>
+        <a href="#">Refund Policy</a>
+        <a href="#">Contact Us</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>&copy; 2025 QuickMart. All rights reserved.</span>
+      <div class="footer-social">
+        <span>X</span>
+        <span>FB</span>
+        <span>IG</span>
+        <span>LI</span>
+      </div>
+    </div>
+  </div>
+</footer>
+{% endblock %}
+
+<script src="{% static 'js/main.js' %}"></script>
+<script src="{% static 'js/voice_cart.js' %}"></script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

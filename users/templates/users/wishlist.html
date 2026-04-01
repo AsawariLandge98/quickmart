@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block title %}My Wishlist — QuickMart{% endblock %}
+{% block content %}
+<div class="section">
+  <h1 class="page-title">❤️ My Wishlist</h1>
+  {% if items %}
+  <div class="products-grid">
+    {% for item in items %}
+    {% with product=item.product %}{% include 'store/product_card.html' %}{% endwith %}
+    {% endfor %}
+  </div>
+  {% else %}
+  <div style="text-align:center;padding:80px 20px;">
+    <div style="font-size:80px;margin-bottom:20px;">💔</div>
+    <h2 style="font-size:24px;margin-bottom:10px;">Your wishlist is empty</h2>
+    <p style="color:var(--mid);margin-bottom:24px;">Save products you love for later</p>
+    <a href="{% url 'store:product_list' %}" class="btn-primary">Browse Products</a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

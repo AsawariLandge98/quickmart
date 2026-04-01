@@ -1,0 +1,54 @@
+{% extends 'admin_panel/base.html' %}
+{% block title %}Products{% endblock %}
+{% block content %}
+<div class="admin-page-header">
+  <h1 class="admin-page-title">Products ({{ products|length }})</h1>
+  <a href="{% url 'admin_panel:product_add' %}" class="btn-primary">+ Add Product</a>
+</div>
+<div class="admin-card">
+  <div class="admin-card-header">
+    <form method="GET" style="display:flex;gap:10px;flex-wrap:wrap;">
+      <input type="text" name="q" class="search-input" placeholder="Search products..." value="{{ q }}">
+      <select name="category" class="search-input" style="width:160px;">
+        <option value="">All Categories</option>
+        {% for cat in categories %}<option value="{{ cat.slug }}" {% if active_cat == cat.slug %}selected{% endif %}>{{ cat.name }}</option>{% endfor %}
+      </select>
+      <button type="submit" class="btn-primary" style="font-size:13px;padding:8px 14px;">Filter</button>
+      <a href="{% url 'admin_panel:products' %}" style="font-size:13px;padding:8px 14px;color:var(--mid);">Clear</a>
+    </form>
+  </div>
+  <table class="data-table">
+    <thead><tr><th>Product</th><th>Category</th><th>Price</th><th>Stock</th><th>Status</th><th>Actions</th></tr></thead>
+    <tbody>
+      {% for product in products %}
+      <tr>
+        <td>
+          <div style="display:flex;align-items:center;gap:10px;">
+            {% if product.display_image %}<img src="{{ product.display_image }}" style="width:40px;height:40px;object-fit:contain;border-radius:8px;background:var(--light);" alt="">
+            {% else %}<div style="width:40px;height:40px;background:var(--light);border-radius:8px;display:grid;place-items:center;font-size:20px;">{{ product.category.icon }}</div>{% endif %}
+            <div>
+              <div style="font-weight:500;font-size:13px;">{{ product.name|truncatechars:35 }}</div>
+              <div style="font-size:11px;color:var(--mid);">{{ product.sku }}</div>
+            </div>
+          </div>
+        </td>
+        <td>{{ product.category.name }}</td>
+        <td>₹{{ product.min_price }}</td>
+        <td>{% with v=product.default_variant %}{% if v %}<span class="{% if v.stock <= 10 %}stock-low{% else %}stock-ok{% endif %}">{{ v.stock }}</span>{% else %}—{% endif %}{% endwith %}</td>
+        <td>
+          <span class="{% if product.is_active %}badge-active{% else %}badge-inactive{% endif %}">{% if product.is_active %}Active{% else %}Inactive{% endif %}</span>
+          {% if product.is_featured %}<span style="font-size:11px;background:var(--yellow-light);color:#b45309;padding:2px 6px;border-radius:4px;margin-left:4px;">Featured</span>{% endif %}
+        </td>
+        <td style="display:flex;gap:6px;flex-wrap:wrap;">
+          <a href="{% url 'admin_panel:product_edit' product.id %}" class="action-btn btn-edit-sm">Edit</a>
+          <a href="{% url 'store:product_detail' product.slug %}" target="_blank" class="action-btn btn-view-sm">View</a>
+          <a href="{% url 'admin_panel:product_delete' product.id %}" class="action-btn btn-del-sm" data-confirm="Deactivate this product?">Delete</a>
+        </td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="6" style="text-align:center;padding:40px;color:var(--mid);">No products found. <a href="{% url 'admin_panel:product_add' %}" style="color:var(--brand);">Add one!</a></td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

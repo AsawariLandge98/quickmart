@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% block title %}Spin & Win — QuickMart{% endblock %}
+{% block content %}
+<div class="spin-wrap">
+  <h1 class="spin-title">🎰 Spin & Win!</h1>
+  <p class="spin-sub">Use your QuickCoins to spin and win amazing rewards</p>
+  {% if user.is_authenticated %}
+  <div class="coins-badge">
+    <span>🪙</span>
+    <span id="spinCoinsDisplay">{{ user.reward_coins }} coins</span>
+    <span style="color:var(--mid);font-size:13px;">available</span>
+  </div>
+  <div class="wheel-container">
+    <div class="wheel-pointer">▼</div>
+    <canvas id="spinCanvas" width="300" height="300"></canvas>
+  </div>
+  <button class="spin-trigger" id="spinTrigger" onclick="doSpin()">🎡 SPIN! (50 coins)</button>
+  <div id="spinResult" class="spin-result"></div>
+  <div class="prizes-grid">
+    <div class="prize-card"><div style="font-size:24px;margin-bottom:8px;">🎁</div><div style="font-size:13px;font-weight:600;">10% OFF</div><div style="font-size:12px;color:var(--mid);">On next order</div></div>
+    <div class="prize-card"><div style="font-size:24px;margin-bottom:8px;">🚚</div><div style="font-size:13px;font-weight:600;">Free Delivery</div><div style="font-size:12px;color:var(--mid);">3 orders</div></div>
+    <div class="prize-card"><div style="font-size:24px;margin-bottom:8px;">💰</div><div style="font-size:13px;font-weight:600;">₹50 Cashback</div><div style="font-size:12px;color:var(--mid);">Wallet credit</div></div>
+    <div class="prize-card"><div style="font-size:24px;margin-bottom:8px;">🪙</div><div style="font-size:13px;font-weight:600;">100 Coins</div><div style="font-size:12px;color:var(--mid);">Earn more</div></div>
+    <div class="prize-card"><div style="font-size:24px;margin-bottom:8px;">🏷️</div><div style="font-size:13px;font-weight:600;">20% OFF</div><div style="font-size:12px;color:var(--mid);">On groceries</div></div>
+    <div class="prize-card"><div style="font-size:24px;margin-bottom:8px;">🎲</div><div style="font-size:13px;font-weight:600;">Try Again</div><div style="font-size:12px;color:var(--mid);">Keep spinning!</div></div>
+  </div>
+  <div style="margin-top:24px;text-align:center;">
+    <p style="font-size:13px;color:var(--mid);">Earn coins: Shop (₹10 = 1 coin) · Write reviews · Refer friends</p>
+    <a href="{% url 'orders:list' %}" class="btn-outline" style="color:var(--dark);border:1.5px solid var(--border);margin-top:12px;display:inline-block;padding:10px 24px;border-radius:10px;">View My Orders</a>
+  </div>
+  {% else %}
+  <div style="text-align:center;padding:40px;">
+    <p style="color:var(--mid);margin-bottom:20px;">Sign in to spin and win rewards!</p>
+    <a href="{% url 'users:login' %}" class="btn-primary">Sign In</a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

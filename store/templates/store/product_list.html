@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}{% if active_cat %}{{ active_cat.name }}{% else %}All Products{% endif %} — QuickMart{% endblock %}
+{% block content %}
+<div class="list-layout">
+  <div class="list-header">
+    <div>
+      <h1 class="list-title">{% if active_cat %}{{ active_cat.icon }} {{ active_cat.name }}{% elif q %}Search: "{{ q }}"{% else %}All Products{% endif %}</h1>
+      <div class="results-count">{{ products|length }} products found</div>
+    </div>
+    <form method="GET" action="{% url 'store:product_list' %}" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+      {% if active_cat %}<input type="hidden" name="category" value="{{ active_cat.slug }}">{% endif %}
+      {% if q %}<input type="hidden" name="q" value="{{ q }}">{% endif %}
+      <select name="sort" class="sort-select" onchange="this.form.submit()">
+        <option value="">Sort by</option>
+        <option value="price_asc" {% if sort == 'price_asc' %}selected{% endif %}>Price: Low → High</option>
+        <option value="price_desc" {% if sort == 'price_desc' %}selected{% endif %}>Price: High → Low</option>
+        <option value="rating" {% if sort == 'rating' %}selected{% endif %}>Top Rated</option>
+        <option value="popular" {% if sort == 'popular' %}selected{% endif %}>Most Popular</option>
+        <option value="newest" {% if sort == 'newest' %}selected{% endif %}>Newest First</option>
+      </select>
+    </form>
+  </div>
+
+  <!-- Filter chips -->
+  <div class="filter-bar-wrap">
+    <div class="filter-bar">
+      <a href="{% url 'store:product_list' %}" class="filter-chip {% if not active_cat %}active{% endif %}">All</a>
+      {% for cat in categories %}
+      <a href="{% url 'store:category' cat.slug %}" class="filter-chip {% if active_cat.slug == cat.slug %}active{% endif %}">{{ cat.icon }} {{ cat.name }}</a>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="list-grid">
+    <!-- SIDEBAR FILTERS -->
+    <aside class="filter-sidebar">
+      <form method="GET" action="{% url 'store:product_list' %}">
+        {% if active_cat %}<input type="hidden" name="category" value="{{ active_cat.slug }}">{% endif %}
+        <div class="filter-title">🔧 Filters</div>
+        <div class="filter-section">
+          <div class="filter-section-title">Price Range</div>
+          <div class="price-range">
+            <input type="number" name="min_price" placeholder="Min ₹" class="price-input" value="{{ min_price }}">
+            <input type="number" name="max_price" placeholder="Max ₹" class="price-input" value="{{ max_price }}">
+          </div>
+        </div>
+        <div class="filter-section">
+          <div class="filter-section-title">Min Rating</div>
+          {% for r in "54321" %}
+          <label class="filter-option">
+            <input type="radio" name="min_rating" value="{{ r }}" {% if min_rating == r %}checked{% endif %}>
+            {{ r }}★ & above
+          </label>
+          {% endfor %}
+        </div>
+        <div class="filter-section">
+          <div class="filter-section-title">Brand</div>
+          {% for brand in brands %}
+          <label class="filter-option">
+            <input type="radio" name="brand" value="{{ brand.slug }}" {% if active_brand == brand.slug %}checked{% endif %}>
+            {{ brand.name }}
+          </label>
+          {% endfor %}
+        </div>
+        <button type="submit" class="apply-filter-btn">Apply Filters</button>
+        <a href="{% url 'store:product_list' %}" class="clear-filter-btn" style="display:block;text-align:center;padding:8px;margin-top:8px;background:var(--light);border-radius:8px;font-size:13px;color:var(--mid);">Clear All</a>
+      </form>
+    </aside>
+
+    <!-- PRODUCT GRID -->
+    <div>
+      {% if products %}
+      <div class="products-grid">
+        {% for product in products %}
+        {% include 'store/product_card.html' %}
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="no-results">
+        <div class="no-results-icon">🔍</div>
+        <h2 style="font-size:22px;margin-bottom:8px;">No products found</h2>
+        <p style="color:var(--mid);margin-bottom:24px;">Try different filters or search terms</p>
+        <a href="{% url 'store:product_list' %}" class="btn-primary">Browse All Products</a>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}
