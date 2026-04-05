@@ -1,1 +1,1 @@
-web: gunicorn quickmart.wsgi --log-file -
+web: gunicorn quickmart.wsgi --bind 0.0.0.0:8080 --log-file -
